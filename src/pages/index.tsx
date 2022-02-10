@@ -2,14 +2,106 @@ import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { GetStaticProps } from "next";
 import { api } from "../services/api";
-import { Episodes } from "../types/types";
+import { EpisodesProps } from "../types/types";
 import { convertDurationToTimeString } from "../utils/convertDurationToTimeString";
+import Image from "next/image";
+import Link from "next/link";
+
+import styles from "./home.module.scss";
 interface HomeProps {
-  episodes: Episodes[];
+  latestEpisodes: EpisodesProps[];
+  allEpisodes: EpisodesProps[];
 }
 
-export default function Home(props: HomeProps) {
-  return <h1>Hello</h1>;
+export default function Home({ latestEpisodes, allEpisodes }: HomeProps) {
+  return (
+    <div className={styles.homepage}>
+      {/* <Head> */}
+      <title>Home | Podcastr</title>
+      {/* </Head> */}
+      <section className={styles.latestEpisodes}>
+        <h2>Últimos lançamentos</h2>
+
+        <ul>
+          {latestEpisodes.map((episode, index) => (
+            <li key={episode.id}>
+              <Image
+                width={192}
+                height={192}
+                src={episode.thumbnail}
+                alt={episode.title}
+                objectFit="cover"
+              />
+
+              <div className={styles.episodeDetails}>
+                <Link href={`/episodes/${episode.id}`} passHref>
+                  <a>{episode.title}</a>
+                </Link>
+                <p>{episode.members}</p>
+                <span>{episode.publishedAt}</span>
+                <span>{episode.durationAsString}</span>
+              </div>
+
+              <button
+                type="button"
+                // onClick={() => playList(episodeList, index)}
+              >
+                <img src="/play-green.svg" alt="Tocar episódio" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section className={styles.allEpisodes}>
+        <h2>Todos episódios</h2>
+        <table cellSpacing={0}>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Podcast</th>
+              <th>Integrantes</th>
+              <th>Duração</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {allEpisodes.map((episode, index) => (
+              <tr key={episode.id}>
+                <td style={{ width: 72 }}>
+                  <Image
+                    width={120}
+                    height={120}
+                    src={episode.thumbnail}
+                    alt={episode.title}
+                    objectFit="cover"
+                  />
+                </td>
+                <td>
+                  <Link href={`/episodes/${episode.id}`} passHref>
+                    <a href={`/episodes/${episode.id}`}>{episode.title}</a>
+                  </Link>
+                </td>
+                <td>{episode.members}</td>
+                <td style={{ width: 100 }}>{episode.publishedAt}</td>
+                <td>{episode.durationAsString}</td>
+                <td>
+                  <button
+                    type="button"
+                    // onClick={() =>
+                    //   playList(episodeList, index + latestEpisodes.length)
+                    // }
+                  >
+                    <img src="/play-green.svg" alt="Tocar episódio" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </div>
+  );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
@@ -36,9 +128,13 @@ export const getStaticProps: GetStaticProps = async () => {
     url: episode.file.url,
   }));
 
+  const latestEpisodes = episodes.slice(0, 2);
+  const allEpisodes = episodes.slice(2, episodes.length);
+
   return {
     props: {
-      episodes: episodes,
+      latestEpisodes,
+      allEpisodes,
     },
     revalidate: 60 * 60 * 8,
   };

@@ -1,4 +1,4 @@
-export interface Episodes {
+export interface EpisodesProps {
   id: string;
   title: string;
   thumbnail: string;
