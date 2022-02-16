@@ -10,6 +10,8 @@ import styles from "./episode.module.scss";
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePlayer } from "../../contexts/PlayerContext";
+import Head from "next/head";
 
 export interface Episode {
   id: string;
@@ -28,13 +30,13 @@ type EpisodeProps = {
 };
 
 export default function Episode({ episode }: EpisodeProps) {
-  const router = useRouter();
+  const { play } = usePlayer();
 
   return (
     <div className={styles.episode}>
-      {/* <Head> */}
-      <title>{episode.title} | Podcastr</title>
-      {/* </Head> */}
+      <Head>
+        <title>{episode.title} | Podcastr</title>
+      </Head>
 
       <div className={styles.thumbnailContainer}>
         <Link href="/">
@@ -49,7 +51,7 @@ export default function Episode({ episode }: EpisodeProps) {
           objectFit="cover"
           alt={episode.title}
         />
-        <button /*</div>onClick={() => play(episode)} */>
+        <button onClick={() => play(episode)}>
           <img src="/play.svg" alt="Tocar episódio" />
         </button>
       </div>
